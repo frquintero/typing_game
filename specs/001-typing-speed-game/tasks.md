@@ -141,12 +141,12 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Final enhancements and quality improvements
 
-- [ ] T045 Add animations with Framer Motion in src/components/game/
-- [ ] T046 Implement accessibility features (ARIA labels, keyboard nav) in src/components/
-- [ ] T047 Add mobile-responsive styling with Tailwind in src/components/
-- [ ] T048 Optimize performance (memoization, virtualization) in src/components/
-- [ ] T049 Add error handling and edge cases in src/hooks/
-- [ ] T050 Update README with setup instructions
+- [x] T045 Add animations with Framer Motion in src/components/game/
+- [x] T046 Implement accessibility features (ARIA labels, keyboard nav) in src/components/
+- [x] T047 Add mobile-responsive styling with Tailwind in src/components/
+- [x] T048 Optimize performance (memoization, virtualization) in src/components/
+- [x] T049 Add error handling and edge cases in src/hooks/
+- [x] T050 Update README with setup instructions
 
 ## Dependencies
 

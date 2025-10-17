@@ -18,10 +18,12 @@ interface UseGameReturn {
   powerUpAvailable: boolean;
   slowMode: boolean;
   slowTimeRemaining: number;
+  error: string | null;
   startGame: (timeLimit: 15 | 30 | 60, difficulty: Difficulty, theme: Theme, focusMode: boolean, onComplete?: (stats: { wpm: number; accuracy: number; difficulty: Difficulty; theme: Theme }) => void) => void;
   handleKeyPress: (key: string) => void;
   activatePowerUp: () => void;
   resetGame: () => void;
+  clearError: () => void;
 }
 
 export const useGame = (): UseGameReturn => {
@@ -41,6 +43,7 @@ export const useGame = (): UseGameReturn => {
   const [slowMode, setSlowMode] = useState(false);
   const [slowTimeRemaining, setSlowTimeRemaining] = useState(0);
   const [onComplete, setOnComplete] = useState<((stats: { wpm: number; accuracy: number; difficulty: Difficulty; theme: Theme }) => void) | undefined>();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const stored = storage.get<number>('consecutivePerfect');
@@ -67,28 +70,44 @@ export const useGame = (): UseGameReturn => {
   }, [text, typedText]);
 
   const startGame = useCallback((timeLimit: 15 | 30 | 60, diff: Difficulty, th: Theme, focus: boolean, completeCallback?: (stats: { wpm: number; accuracy: number; difficulty: Difficulty; theme: Theme }) => void) => {
-    const gameText = generateText(diff, th);
-    setText(gameText);
-    setTypedText('');
-    setTimeRemaining(focus ? -1 : timeLimit); // -1 for no timer
-    setStartTime(new Date());
-    setGameState('playing');
-    setWpm(0);
-    setAccuracy(100);
-    setErrors(0);
-    setDifficulty(diff);
-    setTheme(th);
-    setFocusMode(focus);
-    setOnComplete(() => completeCallback);
+    try {
+      const gameText = generateText(diff, th);
+      if (!gameText || gameText.trim().length === 0) {
+        throw new Error('Failed to generate game text');
+      }
+      setText(gameText);
+      setTypedText('');
+      setTimeRemaining(focus ? -1 : timeLimit); // -1 for no timer
+      setStartTime(new Date());
+      setGameState('playing');
+      setWpm(0);
+      setAccuracy(100);
+      setErrors(0);
+      setDifficulty(diff);
+      setTheme(th);
+      setFocusMode(focus);
+      setOnComplete(() => completeCallback);
+      setError(null); // Clear any previous errors
+    } catch (err) {
+      console.error('Error starting game:', err);
+      setError(err instanceof Error ? err.message : 'Failed to start game');
+      setGameState('idle');
+    }
   }, []);
 
   const handleKeyPress = useCallback((key: string) => {
-    if (gameState !== 'playing') return;
+    try {
+      if (gameState !== 'playing') return;
 
-    if (key === 'Backspace') {
-      setTypedText(prev => prev.slice(0, -1));
-    } else if (key.length === 1) {
-      setTypedText(prev => prev + key);
+      if (key === 'Backspace') {
+        setTypedText(prev => prev.slice(0, -1));
+      } else if (key.length === 1 && key.match(/[a-zA-Z0-9\s\.,!?\-']/)) {
+        setTypedText(prev => prev + key);
+      }
+      // Ignore invalid characters
+    } catch (err) {
+      console.error('Error handling key press:', err);
+      setError(err instanceof Error ? err.message : 'Failed to process key press');
     }
   }, [gameState]);
 
@@ -172,6 +191,10 @@ export const useGame = (): UseGameReturn => {
     }
   }, [typedText, text, startTime]);
 
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
   return {
     gameState,
     text,
@@ -184,9 +207,11 @@ export const useGame = (): UseGameReturn => {
     powerUpAvailable,
     slowMode,
     slowTimeRemaining,
+    error,
     startGame,
     handleKeyPress,
     activatePowerUp,
     resetGame,
+    clearError,
   };
 };

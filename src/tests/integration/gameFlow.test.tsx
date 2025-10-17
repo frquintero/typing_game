@@ -63,7 +63,7 @@ describe('Game Flow Integration', () => {
     await waitFor(() => {
       const errorsLabel = screen.getByText('Errors');
       const errorsContainer = errorsLabel.parentElement;
-      const errorsValue = errorsContainer?.querySelector('.text-2xl')?.textContent;
+      const errorsValue = errorsContainer?.querySelector('[aria-hidden="true"]')?.textContent;
       expect(parseInt(errorsValue || '0')).toBeGreaterThan(0);
     });
   });

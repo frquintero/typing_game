@@ -7,42 +7,44 @@ interface LeaderboardProps {
   entries: LeaderboardEntry[];
 }
 
-export const Leaderboard: React.FC<LeaderboardProps> = ({ entries }) => {
+export const Leaderboard: React.FC<LeaderboardProps> = React.memo(({ entries }) => {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-      <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Leaderboard</h2>
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 mx-4 sm:mx-0" role="region" aria-labelledby="leaderboard-heading">
+      <h2 id="leaderboard-heading" className="text-xl sm:text-2xl font-bold mb-4 text-gray-900 dark:text-white">Leaderboard</h2>
       {entries.length === 0 ? (
-        <p className="text-gray-600 dark:text-gray-400">No scores yet. Be the first!</p>
+        <p className="text-gray-600 dark:text-gray-400 text-center py-8" role="status" aria-live="polite">No scores yet. Be the first!</p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-300 dark:border-gray-600">
-                <th className="text-left py-2 text-gray-700 dark:text-gray-300">Rank</th>
-                <th className="text-left py-2 text-gray-700 dark:text-gray-300">WPM</th>
-                <th className="text-left py-2 text-gray-700 dark:text-gray-300">Accuracy</th>
-                <th className="text-left py-2 text-gray-700 dark:text-gray-300">Difficulty</th>
-                <th className="text-left py-2 text-gray-700 dark:text-gray-300">Theme</th>
-                <th className="text-left py-2 text-gray-700 dark:text-gray-300">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entries.map((entry, index) => (
-                <tr key={entry.id} className="border-b border-gray-200 dark:border-gray-700">
-                  <td className="py-2 text-gray-900 dark:text-white">{index + 1}</td>
-                  <td className="py-2 text-gray-900 dark:text-white">{entry.wpm}</td>
-                  <td className="py-2 text-gray-900 dark:text-white">{entry.accuracy}%</td>
-                  <td className="py-2 text-gray-900 dark:text-white capitalize">{entry.difficulty}</td>
-                  <td className="py-2 text-gray-900 dark:text-white capitalize">{entry.theme}</td>
-                  <td className="py-2 text-gray-600 dark:text-gray-400">
-                    {entry.timestamp.toLocaleDateString()}
-                  </td>
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <div className="inline-block min-w-full align-middle">
+            <table className="min-w-full text-sm" role="table" aria-label="Typing game leaderboard with player scores">
+              <thead>
+                <tr className="border-b border-gray-300 dark:border-gray-600">
+                  <th scope="col" className="text-left py-2 px-2 sm:px-4 text-gray-700 dark:text-gray-300 text-xs sm:text-sm">Rank</th>
+                  <th scope="col" className="text-left py-2 px-2 sm:px-4 text-gray-700 dark:text-gray-300 text-xs sm:text-sm">WPM</th>
+                  <th scope="col" className="text-left py-2 px-2 sm:px-4 text-gray-700 dark:text-gray-300 text-xs sm:text-sm">Accuracy</th>
+                  <th scope="col" className="text-left py-2 px-2 sm:px-4 text-gray-700 dark:text-gray-300 text-xs sm:text-sm hidden sm:table-cell">Difficulty</th>
+                  <th scope="col" className="text-left py-2 px-2 sm:px-4 text-gray-700 dark:text-gray-300 text-xs sm:text-sm hidden md:table-cell">Theme</th>
+                  <th scope="col" className="text-left py-2 px-2 sm:px-4 text-gray-700 dark:text-gray-300 text-xs sm:text-sm">Date</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {entries.map((entry, index) => (
+                  <tr key={entry.id} className="border-b border-gray-200 dark:border-gray-700" role="row">
+                    <td className="py-2 px-2 sm:px-4 text-gray-900 dark:text-white text-xs sm:text-sm" role="gridcell" aria-label={`Rank ${index + 1}`}>{index + 1}</td>
+                    <td className="py-2 px-2 sm:px-4 text-gray-900 dark:text-white text-xs sm:text-sm" role="gridcell" aria-label={`${entry.wpm} words per minute`}>{entry.wpm}</td>
+                    <td className="py-2 px-2 sm:px-4 text-gray-900 dark:text-white text-xs sm:text-sm" role="gridcell" aria-label={`${entry.accuracy} percent accuracy`}>{entry.accuracy}%</td>
+                    <td className="py-2 px-2 sm:px-4 text-gray-900 dark:text-white capitalize text-xs sm:text-sm hidden sm:table-cell" role="gridcell" aria-label={`Difficulty: ${entry.difficulty}`}>{entry.difficulty}</td>
+                    <td className="py-2 px-2 sm:px-4 text-gray-900 dark:text-white capitalize text-xs sm:text-sm hidden md:table-cell" role="gridcell" aria-label={`Theme: ${entry.theme}`}>{entry.theme}</td>
+                    <td className="py-2 px-2 sm:px-4 text-gray-600 dark:text-gray-400 text-xs sm:text-sm" role="gridcell" aria-label={`Date: ${entry.timestamp.toLocaleDateString()}`}>
+                      {entry.timestamp.toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
   );
-};
+});
