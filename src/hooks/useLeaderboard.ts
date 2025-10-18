@@ -1,11 +1,31 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { LeaderboardEntry } from '@/types/leaderboard';
 import { storage } from '@/utils/localStorage';
 
 const LEADERBOARD_KEY = 'leaderboard';
 const MAX_ENTRIES = 1000;
+
+function compareEntries(a: LeaderboardEntry, b: LeaderboardEntry): number {
+  // Sort by WPM desc, then accuracy desc, then timestamp desc (most recent first), then id asc for stability
+  if (b.wpm !== a.wpm) return b.wpm - a.wpm;
+  if (b.accuracy !== a.accuracy) return b.accuracy - a.accuracy;
+  const timeDiff = b.timestamp.getTime() - a.timestamp.getTime();
+  if (timeDiff !== 0) return timeDiff;
+  return a.id.localeCompare(b.id);
+}
+
+function dedupeById(entries: LeaderboardEntry[]): LeaderboardEntry[] {
+  const map = new Map<string, LeaderboardEntry>();
+  for (const e of entries) {
+    const existing = map.get(e.id);
+    if (!existing || e.timestamp.getTime() > existing.timestamp.getTime()) {
+      map.set(e.id, e);
+    }
+  }
+  return Array.from(map.values());
+}
 
 export const useLeaderboard = () => {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
@@ -35,11 +55,11 @@ export const useLeaderboard = () => {
           !isNaN(entry.timestamp.getTime())
         ) as LeaderboardEntry[];
 
-        const sorted = validated
-          .sort((a, b) => b.wpm - a.wpm || b.accuracy - a.accuracy)
+        const processed = dedupeById(validated)
+          .sort(compareEntries)
           .slice(0, MAX_ENTRIES);
 
-        setEntries(sorted);
+        setEntries(processed);
       } else {
         // Malformed payloads should be ignored safely
         setEntries([]);
@@ -61,12 +81,12 @@ export const useLeaderboard = () => {
 
       const newEntry: LeaderboardEntry = {
         ...entry,
-        id: Date.now().toString(),
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
         timestamp: new Date()
       };
 
-      const updated = [...entries, newEntry]
-        .sort((a, b) => b.wpm - a.wpm || b.accuracy - a.accuracy)
+      const updated = dedupeById([...entries, newEntry])
+        .sort(compareEntries)
         .slice(0, MAX_ENTRIES);
 
       setEntries(updated);
