@@ -30,6 +30,10 @@ export interface LeaderboardEntry {
   theme: 'normal' | 'programming' | 'motivational' | 'fitness';
 }
 
+export interface DisplayEntry extends Omit<LeaderboardEntry, 'name'> {
+  isEmpty?: boolean;
+}
+
 export type GameState = 'idle' | 'playing' | 'completed';
 
 export type Difficulty = 'easy' | 'medium' | 'hard';

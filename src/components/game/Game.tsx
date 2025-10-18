@@ -60,7 +60,6 @@ export const Game: React.FC<GameProps> = React.memo(({ timeLimit, difficulty, th
   }, [gameState, handleKeyPress]);
 
   const handleRetry = () => {
-    resetGame();
     onRetry();
   };
 
@@ -197,7 +196,7 @@ export const Game: React.FC<GameProps> = React.memo(({ timeLimit, difficulty, th
               accuracy={accuracy}
               errors={errors}
               focusMode={focusMode}
-              onRetry={handleRetry}
+              onClose={handleRetry}
             />
           </motion.div>
         )}

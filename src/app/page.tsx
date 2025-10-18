@@ -22,7 +22,7 @@ export default function Home() {
   const [theme, setTheme] = useState<Theme>('normal');
   const [focusMode, setFocusMode] = useState(false);
 
-  const { getTopEntries } = useLeaderboard();
+  const { getTopEntries, resetLeaderboard } = useLeaderboard();
 
   const handleStartGame = () => {
     setGameStarted(true);
@@ -97,9 +97,12 @@ export default function Home() {
                 <p className="text-gray-600 dark:text-gray-400">Loading leaderboard...</p>
               </div>
             }>
-              <Leaderboard entries={getTopEntries()} />
+              <Leaderboard entries={getTopEntries(10)} />
             </Suspense>
-            <div className="flex justify-center">
+            <div className="flex justify-center gap-4">
+              <Button onClick={resetLeaderboard} variant="secondary">
+                Reset Leaderboard
+              </Button>
               <Button onClick={handleBackToSelection}>Back to Game</Button>
             </div>
           </div>

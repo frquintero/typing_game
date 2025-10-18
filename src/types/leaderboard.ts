@@ -6,3 +6,7 @@ export interface LeaderboardEntry {
   theme: 'normal' | 'programming' | 'motivational' | 'fitness';
   timestamp: Date;
 }
+
+export interface DisplayEntry extends LeaderboardEntry {
+  isEmpty?: boolean;
+}

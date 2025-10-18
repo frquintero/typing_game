@@ -7,6 +7,7 @@ describe('Game Flow Integration', () => {
     timeLimit: 15 as const, // Use 15 seconds for faster testing
     difficulty: 'easy' as const,
     theme: 'normal' as const,
+    focusMode: false,
     onRetry: jest.fn(),
   };
 
@@ -39,11 +40,13 @@ describe('Game Flow Integration', () => {
     expect(screen.getByText('Accuracy:')).toBeInTheDocument();
     expect(screen.getByText('Errors:')).toBeInTheDocument();
 
-    // Click retry
-    const retryButton = screen.getByText('Try Again');
-    fireEvent.click(retryButton);
+    // Check for the instruction text
+    expect(screen.getByText('Click anywhere or press any key to continue')).toBeInTheDocument();
 
-    // Verify onRetry was called
+    // Simulate clicking anywhere to close modal
+    fireEvent.click(document.body);
+
+    // Verify onRetry was called (which now closes the modal and returns to selection)
     expect(defaultProps.onRetry).toHaveBeenCalled();
   }, 20000); // Jest timeout
 
