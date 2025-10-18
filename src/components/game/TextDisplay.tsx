@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
+import { computeCharMetadata } from '@/utils/textDisplay';
 
 interface TextDisplayProps {
   text: string;
@@ -9,43 +10,7 @@ interface TextDisplayProps {
 }
 
 export const TextDisplay: React.FC<TextDisplayProps> = React.memo(({ text, typedText, currentWordIndex }) => {
-  const getWordIndex = (pos: number) => {
-    const words = text.split(' ');
-    let cumulative = 0;
-    for (let i = 0; i < words.length; i++) {
-      const wordStart = cumulative;
-      const wordEnd = cumulative + words[i].length;
-      if (pos >= wordStart && pos <= wordEnd) {
-        return pos === wordEnd ? (i + 1 < words.length ? i + 1 : -1) : i;
-      }
-      cumulative = wordEnd + 1;
-    }
-    return -1;
-  };
-
-  const renderChar = (char: string, index: number) => {
-    const typedChar = typedText[index];
-    const wordIndex = getWordIndex(index);
-    let className = 'text-gray-400'; // not typed yet
-
-    if (typedChar !== undefined) {
-      if (typedChar === char) {
-        className = 'text-green-500'; // correct
-      } else {
-        className = 'text-red-500'; // error
-      }
-    }
-
-    if (wordIndex === currentWordIndex) {
-      className += ' bg-yellow-200'; // highlight current word
-    }
-
-    return (
-      <span key={index} className={className}>
-        {char}
-      </span>
-    );
-  };
+  const charMeta = useMemo(() => computeCharMetadata(text, typedText), [text, typedText]);
 
   return (
     <div
@@ -60,7 +25,21 @@ export const TextDisplay: React.FC<TextDisplayProps> = React.memo(({ text, typed
       <div id="typing-instructions" className="sr-only">
         Type the displayed text. Correctly typed characters are shown in green, errors in red, and the current word is highlighted.
       </div>
-      {text.split('').map((char, index) => renderChar(char, index))}
+      {charMeta.map(({ char, index, wordIndex, status }) => {
+        let className = 'text-gray-400';
+        if (status === 'correct') className = 'text-green-500';
+        else if (status === 'incorrect') className = 'text-red-500';
+
+        if (wordIndex === currentWordIndex) {
+          className += ' bg-yellow-200';
+        }
+
+        return (
+          <span key={index} className={className}>
+            {char}
+          </span>
+        );
+      })}
       {typedText.length > text.length && (
         <span className="text-red-500" aria-label="Extra characters typed">
           {typedText.slice(text.length)}
