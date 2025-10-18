@@ -75,4 +75,43 @@ describe('useLeaderboard', () => {
     expect(top5).toHaveLength(5);
     expect(top5[0].wpm).toBe(9);
   });
+
+  it('should load persisted entries from localStorage and convert timestamps to Date objects across remounts', () => {
+    const payload = [
+      { id: '1', wpm: 70, accuracy: 98, difficulty: 'easy', theme: 'normal', timestamp: new Date('2024-01-01T00:00:00.000Z').toISOString() },
+      { id: '2', wpm: 80, accuracy: 96, difficulty: 'medium', theme: 'programming', timestamp: new Date('2024-02-01T00:00:00.000Z').toISOString() }
+    ];
+    localStorage.setItem('typingGame:leaderboard', JSON.stringify(payload));
+
+    const firstRender = renderHook(() => useLeaderboard());
+
+    expect(firstRender.result.current.entries).toHaveLength(2);
+    expect(firstRender.result.current.entries[0].wpm).toBe(80);
+    expect(firstRender.result.current.entries[0].timestamp instanceof Date).toBe(true);
+
+    firstRender.unmount();
+
+    const secondRender = renderHook(() => useLeaderboard());
+    expect(secondRender.result.current.entries).toHaveLength(2);
+    expect(secondRender.result.current.entries[0].timestamp instanceof Date).toBe(true);
+  });
+
+  it('should discard invalid stored records safely', () => {
+    const validTs = new Date().toISOString();
+    const badPayload = [
+      { id: 'x', wpm: 'fast', accuracy: 95, difficulty: 'easy', theme: 'normal', timestamp: validTs },
+      null,
+      123,
+      {},
+      { id: 'valid', wpm: 55, accuracy: 96, difficulty: 'easy', theme: 'normal', timestamp: validTs },
+      { id: 'bad-ts', wpm: 40, accuracy: 80, difficulty: 'easy', theme: 'normal', timestamp: 'not-a-date' },
+      { id: 'missing-accuracy', wpm: 40, difficulty: 'easy', theme: 'normal', timestamp: validTs },
+    ];
+    localStorage.setItem('typingGame:leaderboard', JSON.stringify(badPayload));
+
+    const { result } = renderHook(() => useLeaderboard());
+    expect(result.current.entries).toHaveLength(1);
+    expect(result.current.entries[0].id).toBe('valid');
+    expect(result.current.error).toBeNull();
+  });
 });

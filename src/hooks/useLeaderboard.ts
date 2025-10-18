@@ -13,25 +13,36 @@ export const useLeaderboard = () => {
 
   useEffect(() => {
     try {
-      const stored = storage.get<LeaderboardEntry[]>(LEADERBOARD_KEY);
-      if (stored) {
-        // Validate stored data
-        const validated = stored.filter(entry =>
+      const stored = storage.get<unknown>(LEADERBOARD_KEY);
+      if (Array.isArray(stored)) {
+        // Convert timestamps first, then validate
+        const parsed = stored.map((raw: any) => {
+          const ts = raw?.timestamp != null ? new Date(raw.timestamp) : null;
+          return {
+            ...raw,
+            timestamp: ts,
+          };
+        });
+
+        const validated = parsed.filter((entry: any) =>
           entry &&
           typeof entry.id === 'string' &&
           typeof entry.wpm === 'number' &&
           typeof entry.accuracy === 'number' &&
           typeof entry.difficulty === 'string' &&
           typeof entry.theme === 'string' &&
-          entry.timestamp instanceof Date
-        );
+          entry.timestamp instanceof Date &&
+          !isNaN(entry.timestamp.getTime())
+        ) as LeaderboardEntry[];
 
-        // Convert timestamp strings back to Date objects if needed
-        const parsed = validated.map(entry => ({
-          ...entry,
-          timestamp: entry.timestamp instanceof Date ? entry.timestamp : new Date(entry.timestamp)
-        }));
-        setEntries(parsed);
+        const sorted = validated
+          .sort((a, b) => b.wpm - a.wpm || b.accuracy - a.accuracy)
+          .slice(0, MAX_ENTRIES);
+
+        setEntries(sorted);
+      } else {
+        // Malformed payloads should be ignored safely
+        setEntries([]);
       }
       setError(null);
     } catch (err) {
