@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useId } from 'react';
 import { motion } from 'framer-motion';
 import { useGame } from '@/hooks/useGame';
 import { useLeaderboard } from '@/hooks/useLeaderboard';
@@ -39,6 +39,8 @@ export const Game: React.FC<GameProps> = React.memo(({ timeLimit, difficulty, th
     clearError,
   } = useGame();
 
+  const metricsHeadingId = useId();
+
   useEffect(() => {
     if (gameState === 'idle') {
       startGame(timeLimit, difficulty, theme, focusMode, (stats) => {
@@ -49,9 +51,13 @@ export const Game: React.FC<GameProps> = React.memo(({ timeLimit, difficulty, th
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (gameState === 'playing') {
+      if (gameState !== 'playing') return;
+      const key = event.key;
+      const isCharacter = key.length === 1 && /[a-zA-Z0-9\s\.,!?\-']/.test(key);
+      const isBackspace = key === 'Backspace';
+      if (isCharacter || isBackspace) {
         event.preventDefault();
-        handleKeyPress(event.key);
+        handleKeyPress(key);
       }
     };
 
@@ -124,9 +130,9 @@ export const Game: React.FC<GameProps> = React.memo(({ timeLimit, difficulty, th
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
           role="region"
-          aria-labelledby="metrics-heading"
+          aria-labelledby={metricsHeadingId}
         >
-          <h2 id="metrics-heading" className="sr-only">Typing Metrics</h2>
+          <h2 id={metricsHeadingId} className="sr-only">Typing Metrics</h2>
           <MetricsBar wpm={wpm} accuracy={accuracy} errors={errors} timeRemaining={timeRemaining} focusMode={focusMode} />
         </motion.div>
 

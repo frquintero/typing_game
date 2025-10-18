@@ -12,8 +12,7 @@ interface MetricsBarProps {
 
 export const MetricsBar: React.FC<MetricsBarProps> = React.memo(({ wpm, accuracy, errors, timeRemaining, focusMode }) => {
   return (
-    <div className={`grid grid-cols-2 ${focusMode ? 'md:grid-cols-2' : 'md:grid-cols-4'} gap-3 sm:gap-4 mb-4 sm:mb-6`} role="region" aria-labelledby="metrics-heading">
-      <h2 id="metrics-heading" className="sr-only">Typing Performance Metrics</h2>
+    <div className={`grid grid-cols-2 ${focusMode ? 'md:grid-cols-2' : 'md:grid-cols-4'} gap-3 sm:gap-4 mb-4 sm:mb-6`} role="region" aria-label="Typing Performance Metrics">
       {!focusMode && (
         <div className="bg-white dark:bg-gray-800 p-3 sm:p-4 rounded-lg shadow text-center min-h-[80px] sm:min-h-[100px] flex flex-col justify-center" role="status" aria-label={`Words per minute: ${wpm}`}>
           <div className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400" aria-hidden="true">{wpm}</div>
