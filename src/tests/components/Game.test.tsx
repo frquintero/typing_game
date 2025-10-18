@@ -6,6 +6,7 @@ describe('Game', () => {
     timeLimit: 30 as const,
     difficulty: 'easy' as const,
     theme: 'normal' as const,
+    focusMode: false,
     onRetry: jest.fn(),
   };
 

@@ -205,9 +205,9 @@ describe('useLeaderboard', () => {
       const { result } = renderHook(() => useLeaderboard());
 
       const entries = [
-        { wpm: 60, accuracy: 90, difficulty: 'easy', theme: 'normal' }, // Should be 2nd
-        { wpm: 60, accuracy: 95, difficulty: 'easy', theme: 'normal' }, // Should be 1st (higher accuracy)
-        { wpm: 50, accuracy: 100, difficulty: 'easy', theme: 'normal' }, // Should be 3rd
+        { wpm: 60, accuracy: 90, difficulty: 'easy' as const, theme: 'normal' as const }, // Should be 2nd
+        { wpm: 60, accuracy: 95, difficulty: 'easy' as const, theme: 'normal' as const }, // Should be 1st (higher accuracy)
+        { wpm: 50, accuracy: 100, difficulty: 'easy' as const, theme: 'normal' as const }, // Should be 3rd
       ];
 
       entries.forEach(entry => {
