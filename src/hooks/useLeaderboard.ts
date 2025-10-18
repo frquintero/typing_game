@@ -145,7 +145,7 @@ export const useLeaderboard = () => {
       console.error('Error adding leaderboard entry:', err);
       setError(err instanceof Error ? err.message : 'Failed to save leaderboard entry');
     }
-  }, [entries]);
+  }, []);
 
   const getTopEntries = useCallback((limit: number = 100) => {
     return entries.slice(0, limit);
